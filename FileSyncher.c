@@ -81,11 +81,11 @@ int main(int argc, char *argv[])
             printf("Invalid user file name sent.\n");
             return -1;
         }
-        if((serverFile = fopen(argv[2], "r")) == NULL) /* needs to be updated to take file from user's computer */
+        /*  /if((serverFile = fopen(argv[2], "r")) == NULL)  arg[2] == serverFile 
         {
             printf("Invalid server file name sent.\n");
             return -1;
-        }
+        }*/
     
         /*check if file exists on server*/
         if(!strcmp(argv[1], argv[2]))
