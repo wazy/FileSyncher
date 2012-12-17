@@ -3,9 +3,11 @@
  * ~12/08/12~
  *
 */
-
+#include <sys/stat.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -51,6 +53,29 @@ int main(int argc, char *argv[])
     
     // write(sockfd, argv[1], sizeof(argv[1])); // to send file name
     // open the user's file
+    struct stat sb;
+
+    stat(argv[1], &sb);
+    char s[256];
+    strcpy(s, ctime(&sb.st_mtime));
+    char *token = strtok(s, " ");
+    int count = 0;
+    while (token && count < 3) {
+        token = strtok(NULL, " ");
+        count++;
+    }
+    printf("%s\n", token);
+    strcpy(s, token);
+    token = strtok(s, ":");
+    count = 0;
+    printf("%s\n", token);
+    int x = (int *)token - (int *)token;
+    printf("%d", x);
+    while (token && count < 1) {
+        token = strtok(NULL, ":");
+        count++;
+    }
+    printf("%s\n", token);
     int fd;
     fd = open(argv[1], O_RDONLY);
    
