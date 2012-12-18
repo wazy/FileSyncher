@@ -3,6 +3,7 @@
  * ~12/08/12~
  *
 */
+
 #include <sys/stat.h>
 #include <string.h>
 #include <stdio.h>
@@ -14,8 +15,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <fcntl.h>
-
-
 
  /*   
     struct stat sb;
