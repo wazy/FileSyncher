@@ -15,6 +15,7 @@
 #include <ftw.h>
 #include <fcntl.h>
 #include <pwd.h>
+#include <pthread.h>
 
 typedef int bool;
 #define true  1
