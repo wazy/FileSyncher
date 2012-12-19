@@ -9,6 +9,7 @@
 int count = 0;
 char addresses[100000] = {0};
 char *NewLine = "\n";
+bool run = true;
 
 // ftw takes this as an argument about what to do
 // what we want is the file name which is in path
@@ -26,18 +27,81 @@ int DirList(const char *path, const struct stat *ptr, int flag)
     return 0;
 }
 
+static void *CurrentFilesThread()
+{
+    // gets home path and cats the source folder to it
+    char *homeDir = getenv("HOME");
+    homeDir = strcat(homeDir, "/FileSyncher/");
+
+    // if we can't get home environment try this
+    if (!homeDir) 
+    {
+        struct passwd* pwd = getpwuid(getuid());
+        if (pwd)
+           homeDir = pwd->pw_dir;
+           homeDir = strcat(homeDir, "/FileSyncher");
+    }
+    
+    printf("%s", homeDir);
+	
+    // this will find all files in the directory
+    if (ftw(homeDir, DirList, 20) != 0)
+    {
+        printf("ERROR: directory is invalid or does not exist..\n");
+        return NULL; // file tree walker failed
+    }
+    
+    // each token will contain a file name
+    char *token;
+    char delimit[] = "\n";
+
+    // everything is in address array
+    token = strtok(addresses, delimit);
+    while (token != NULL)
+    {
+        printf("%s\n", token);
+        token = strtok(NULL, delimit);
+    }
+    return NULL;
+}
+
+static void *SleepingThread()
+{
+    sleep(5);
+    run = false;
+    return NULL;
+}
+
 int main(int argc, char *argv[])
 {
     splitter(NewLine);
     TimeComparsion(NewLine, NewLine);
+
+    int t1, t2;
+    pthread_t sleepingThread, currentFilesThread;
+	
     if (argc < 2)
     {
         printf("Usage is ./client filename\n");
         return 1;
     }
 
-    printf("Client program is initializing...\n");
+       printf("Client program is initializing...\n");
 
+	t1 = pthread_create(&sleepingThread, NULL, &SleepingThread, NULL);
+	if (t1 != 0)
+	{
+		printf("Thread creation failed!");
+		return -1;
+	}
+
+	t2 = pthread_create(&currentFilesThread, NULL, &CurrentFilesThread, NULL);
+	if (t2 != 0)
+	{
+		printf("Thread creation failed!");
+		return -1;
+	}
+	
    // create socket for client
     sockfd = socket(PF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) { 
@@ -58,45 +122,12 @@ int main(int argc, char *argv[])
         perror("Error occurred in connecting to server.");
         exit(-1);
     }
-
+	
     // write(sockfd, argv[1], sizeof(argv[1])); // to send file name
     // open the user's file
-    
-    // gets home path and cats the source folder to it
-    char *homeDir = getenv("HOME");
-    homeDir = strcat(homeDir, "/FileSyncher/");
-
-    // if we can't get home environment try this
-    if (!homeDir) 
-    {
-        struct passwd* pwd = getpwuid(getuid());
-        if (pwd)
-           homeDir = pwd->pw_dir;
-           homeDir = strcat(homeDir, "/FileSyncher");
-    }
-    
-    // this will find all files in the directory
-    if (ftw(homeDir, DirList, 20) != 0)
-    {
-        printf("ERROR: directory is invalid or does not exist..\n");
-        return -1; // file tree walker failed
-    }
-    
-    // each token will contain a file name
-    char *token;
-    char delimit[] = "\n";
-
-    // everything is in address array
-    token = strtok(addresses, delimit);
-    while (token != NULL)
-    {
-        printf("%s\n", token);
-        token = strtok(NULL, delimit);
-    }
 
     int fd;
     fd = open(argv[1], O_RDONLY);
-
     char buffer[8*1024];
     while (1) {
         // read data into buffer
@@ -119,6 +150,10 @@ int main(int argc, char *argv[])
             p += bytes_written;
         }
     }
+
+    while(run)
+        continue;
+
     printf("\nTransfer succeeded!\n\n");
     close(sockfd);
     exit(0);
