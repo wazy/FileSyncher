@@ -4,32 +4,16 @@
  *
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <sys/types.h>
+#include "client_func_v2.h"
 
 int main(int argc, char *argv[])
 {
-    // variables
-    int server_sockfd, client_sockfd;
-    int server_len ;
-    int rc ;
-    unsigned client_len;
-    struct sockaddr_in server_address;
-    struct sockaddr_in client_address;
-
     // removing old and creating socket for server on port 7735
     server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = htons(INADDR_ANY);
     server_address.sin_port = htons(7735);
     server_len = sizeof(server_address);
-
     bind(server_sockfd, (struct sockaddr *) &server_address, server_len);
     
     printf("Server is initialized and listening for clients..\n");
