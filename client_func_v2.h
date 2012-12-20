@@ -35,9 +35,9 @@ int x;
 char *splitter(char *stat);
 
 // function declaration for sleeping thread
-static void *SleepingThread();
+void *SleepingThread();
 
 // function declaration for Current Files Thread
-static void *CurrentFilesThread()
+void *CurrentFilesThread();
 
 #endif

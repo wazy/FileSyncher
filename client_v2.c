@@ -6,8 +6,8 @@
 
 #include "client_func_v2.h"
 
-int  count = 0;
-addresses[100000] = {0};
+int count = 0;
+char addresses[100000] = {0};
 char *NewLine = "\n";
 bool run = true;
 
@@ -27,7 +27,7 @@ int DirList(const char *path, const struct stat *ptr, int flag)
     return 0;
 }
 
-*CurrentFilesThread()
+void *CurrentFilesThread()
 {
     // gets home path and cats the source folder to it
     char *homeDir = getenv("HOME");
@@ -43,7 +43,7 @@ int DirList(const char *path, const struct stat *ptr, int flag)
     }
     
     printf("%s", homeDir);
-	
+
     // this will find all files in the directory
     if (ftw(homeDir, DirList, 20) != 0)
     {
@@ -65,7 +65,7 @@ int DirList(const char *path, const struct stat *ptr, int flag)
     return NULL;
 }
 
-*SleepingThread()
+void *SleepingThread()
 {
     sleep(5);
     run = false;
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 
     int t1, t2;
     pthread_t sleepingThread, currentFilesThread;
-	
+
     if (argc < 2)
     {
         printf("Usage is ./client filename\n");
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
         perror("Error occurred in connecting to server.");
         exit(-1);
     }
-	
+
     // write(sockfd, argv[1], sizeof(argv[1])); // to send file name
     // open the user's file
 
