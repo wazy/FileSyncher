@@ -1,6 +1,6 @@
 #make client binary
 client: splitter.o TimeComparison.o client.o
-	gcc -o client splitter.o TimeComparison.o client.o -lpthread
+	gcc -o ./bin/client splitter.o TimeComparison.o client.o -lpthread
 
 #client object
 client.o: client.c client_func.h
@@ -16,7 +16,8 @@ splitter.o: splitter.c client_func.h
 
 #what to do when make clean
 clean:
-	rm *.o client
+	rm *.o ./bin/client
 
+# NYI
 install:
-	cp client /home/students/dballar1/
+	cp client /home/user/FileSyncher
