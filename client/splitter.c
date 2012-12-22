@@ -8,8 +8,18 @@
 
 #include "client_func.h"
 
-char *splitter(char *stat)
+char *splitter(char *currentFileStamp)
 {
-    printf("split\n");
-    return 0;
+    struct stat sb;
+    stat(currentFileStamp, &sb);
+    char s[256];
+    strcpy(s, ctime(&sb.st_mtime));
+    char *token = strtok(s, " ");
+    int count = 0;
+    while (token && count < 3) {
+        token = strtok(NULL, " ");
+        count++;
+    }
+
+    return strdup(token);
 }

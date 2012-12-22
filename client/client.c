@@ -42,15 +42,15 @@ static void *CurrentFilesThread()
            homeDir = strcat(homeDir, "/FileSyncher");
     }
     
-    printf("%s", homeDir);
-	
+    //printf("%s", homeDir);
+    
     // this will find all files in the directory
     if (ftw(homeDir, DirList, 20) != 0)
     {
         printf("ERROR: directory is invalid or does not exist..\n");
         return NULL; // file tree walker failed
     }
-    
+
     // each token will contain a file name
     char *token;
     char delimit[] = "\n";
@@ -74,12 +74,20 @@ static void *SleepingThread()
 
 int main(int argc, char *argv[])
 {
-    splitter(NewLine);
-    TimeComparsion(NewLine, NewLine);
+    // file 1 will be current read from ftw
+    // file 2 will come from cached .name file
+    testVar = splitter(argv[1]);
+    testVar1 = splitter(argv[2]);
+    int x = TimeComparsion(testVar, testVar1);
+
+    if (x)
+        printf("Files have different last modification times.\n");
+    else
+        printf("Files are the same.\n");
 
     int t1, t2;
     pthread_t sleepingThread, currentFilesThread;
-	
+    
     if (argc < 2)
     {
         printf("Usage is ./client filename\n");
@@ -88,20 +96,20 @@ int main(int argc, char *argv[])
 
        printf("Client program is initializing...\n");
 
-	t1 = pthread_create(&sleepingThread, NULL, &SleepingThread, NULL);
-	if (t1 != 0)
-	{
-		printf("Thread creation failed!");
-		return -1;
-	}
+    t1 = pthread_create(&sleepingThread, NULL, &SleepingThread, NULL);
+    if (t1 != 0)
+    {
+        printf("Thread creation failed!");
+        return -1;
+    }
 
-	t2 = pthread_create(&currentFilesThread, NULL, &CurrentFilesThread, NULL);
-	if (t2 != 0)
-	{
-		printf("Thread creation failed!");
-		return -1;
-	}
-	
+    t2 = pthread_create(&currentFilesThread, NULL, &CurrentFilesThread, NULL);
+    if (t2 != 0)
+    {
+        printf("Thread creation failed!");
+        return -1;
+    }
+
    // create socket for client
     sockfd = socket(PF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) { 
@@ -122,7 +130,7 @@ int main(int argc, char *argv[])
         perror("Error occurred in connecting to server.");
         exit(-1);
     }
-	
+
     // write(sockfd, argv[1], sizeof(argv[1])); // to send file name
     // open the user's file
 
@@ -150,7 +158,7 @@ int main(int argc, char *argv[])
             p += bytes_written;
         }
     }
-
+    printf("Waiting to terminate cleanly...\n");
     while(run)
         continue;
 

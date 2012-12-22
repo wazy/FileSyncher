@@ -29,10 +29,12 @@ int len;
 struct sockaddr_in address;
 int result;
 int x;
+char *testVar;
+char *testVar1;
 
 /* Function declaration for a function that splits array into 
  * individual tokens
  */
-char *splitter(char *stat);
+char *splitter(char *currentFile);
 
 #endif
