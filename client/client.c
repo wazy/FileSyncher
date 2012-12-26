@@ -55,13 +55,18 @@ int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwb
                 //server->sendFile(fileName);
                 equalTimes = 1;
             }
+            free(currentFileTime);
         }
     }
 
     // print the filename and last modified date to .names
     if (updateFile && fp != NULL)
-        fprintf (fp, "%s\t%s\n", path, splitter(path));
-
+    {
+        currentFileTime = splitter(path);
+        fprintf (fp, "%s\t%s\n", path, currentFileTime);
+        free(currentFileTime);
+    }
+    
     // NYI: when no cached file exists
     if (uploadAll)
         //server->sendFile(path);
