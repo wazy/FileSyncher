@@ -31,7 +31,7 @@ int result;
 int x;
 char *testVar;
 char *testVar1;
-FILE *fp;
+FILE *fout;
 
 /* Function declaration for a function that splits array into 
  * individual tokens

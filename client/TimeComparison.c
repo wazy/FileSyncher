@@ -9,7 +9,7 @@
 
 bool TimeComparsion(char *currentFile, char *cachedFile)
 {
-    printf("Time 1: %s\nTime 2: %s\n", currentFile, cachedFile);
+    //printf("Time 1: %s	Time 2: %s\n", currentFile, cachedFile);
 
     char s[256], t[256];
     char *token, *token2;
@@ -24,7 +24,7 @@ bool TimeComparsion(char *currentFile, char *cachedFile)
     int x = z - y;
 
     if (x != 0)
-        return 1; // different hours
+        return 0; // different hours
 
     token = strtok(s, ":");
     token2 = strtok(t, ":");
@@ -36,7 +36,7 @@ bool TimeComparsion(char *currentFile, char *cachedFile)
     x = z - y;
 
     if (x != 0)
-        return 1; // different minutes
+        return 0; // different minutes
 
     token = strtok(s, ":");
     token2 = strtok(t, ":");
@@ -48,7 +48,7 @@ bool TimeComparsion(char *currentFile, char *cachedFile)
     x = z - y;
 
     if (x != 0)
-        return 1; // different seconds
-
-    return 0; // same time
+        return 0; // different seconds
+        
+    return 1; // same time
 }

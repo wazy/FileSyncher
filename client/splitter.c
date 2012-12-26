@@ -8,7 +8,7 @@
 
 #include "client_func.h"
 
-char *splitter(char *currentFileStamp)
+char *splitter(const char *currentFileStamp)
 {
     struct stat sb;
     stat(currentFileStamp, &sb);

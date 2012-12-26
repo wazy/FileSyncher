@@ -1,29 +1,72 @@
 /* 
- * Client Version 0.03
- * ~12/19/12~
+ * Client Version 0.04
+ * ~12/26/12~
  *
 */
 
+#define _XOPEN_SOURCE 500
 #include "client_func.h"
 
 int count = 0;
-char addresses[100000] = {0};
 char *NewLine = "\n";
 bool run = true;
+int i, m = 0;
+bool uploadAll = false;
+bool updateFile = false;
+int t1, t2;
+pthread_t sleepingThread, currentFilesThread;
+int equalTimes;
+char *fileName, *currentFileTime, *cachedFileTime;
+char str[400];
+FILE *fp1;
 
-// ftw takes this as an argument about what to do
-// what we want is the file name which is in path
-int DirList(const char *path, const struct stat *ptr, int flag)
+// nftw takes this as an argument about what to do
+// what we want is the filename which is in path
+int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwbuf)
 {
-    int dl = strlen(path);
-    x = 0;
-    while (x < dl)
+    while(!updateFile && (fgets(str, sizeof(str), fp) != NULL))
     {
-        addresses[count] = path[x]; // copy file path into address array
-        count++;
-        x++;
+        int len = strlen(str)-1;
+        if (str[len] == '\n')
+            str[len] = 0;
+
+        // read filename and last modified time
+        fileName = strtok(str, "\t");
+        cachedFileTime = strtok(NULL, "\t");
+
+        // check if the file read from the file is valid or not
+        if ((fp1 = fopen(fileName, "r")) == NULL)
+        {
+            printf("Invalid filename or ");
+            printf("%s has been deleted since last caching.\n", fileName);
+            //DeleteFileOnServer(p);
+        }
+
+        // if it exists compare its cached time to its current time
+        else
+        {
+            fclose(fp1);
+            // get its latest modified time and check it
+            currentFileTime = splitter((const char *) fileName);
+            equalTimes = TimeComparsion(cachedFileTime, currentFileTime);
+            if (!equalTimes)
+            {
+                printf("File: %s, has been modified.\n", fileName);
+                //server->sendFile(fileName);
+                equalTimes = 1;
+            }
+        }
     }
-    addresses[count++] = (char) NewLine[0]; // add a new line to separate files
+
+    // print the filename and last modified date to .names
+    if (updateFile && fp != NULL)
+        fprintf (fp, "%s\t%s\n", path, splitter(path));
+
+    // NYI: when no cached file exists
+    if (uploadAll)
+        //server->sendFile(path);
+        printf("uploading file... %s\n", path);
+
     return 0;
 }
 
@@ -31,7 +74,7 @@ static void *CurrentFilesThread()
 {
     // gets home path and cats the source folder to it
     char *homeDir = getenv("HOME");
-    homeDir = strcat(homeDir, "/FileSyncher/");
+    homeDir = strcat(homeDir, "/FileSyncher/bin/");
 
     // if we can't get home environment try this
     if (!homeDir) 
@@ -39,28 +82,44 @@ static void *CurrentFilesThread()
         struct passwd* pwd = getpwuid(getuid());
         if (pwd)
            homeDir = pwd->pw_dir;
-           homeDir = strcat(homeDir, "/FileSyncher");
-    }
-    
-    //printf("%s", homeDir);
-    
-    // this will find all files in the directory
-    if (ftw(homeDir, DirList, 20) != 0)
-    {
-        printf("ERROR: directory is invalid or does not exist..\n");
-        return NULL; // file tree walker failed
+           homeDir = strcat(homeDir, "/FileSyncher/bin/");
     }
 
-    // each token will contain a file name
-    char *token;
-    char delimit[] = "\n";
+    // cached file is .names
+    fp = fopen (".names", "rt");
 
-    // everything is in address array
-    token = strtok(addresses, delimit);
-    while (token != NULL)
+    // no cached file exists
+    if (fp == NULL)
     {
-        printf("%s\n", token);
-        token = strtok(NULL, delimit);
+        printf("WARNING: No cached file exists.\n");
+        uploadAll = true;
+        fp = fopen (".names", "w+");
+    
+        // this will find all files in the FS directory
+        if (nftw(homeDir, DirList, 20, 0) != 0)
+        {
+            printf("ERROR: directory is invalid or does not exist..\n");
+            return NULL; // file tree walker failed
+        }
+        fclose (fp);
+    }
+    // we have a cached file
+    else
+    {
+        nftw(homeDir, DirList, 20, 0);
+        fclose(fp);
+
+        // open names file for writing
+        // toggle the switch to start updating files
+        fp = fopen (".names", "w+");
+        updateFile = true;
+        // this will find all files in the directory
+        if (nftw(homeDir, DirList, 20, 0) != 0)
+        {
+            printf("ERROR: directory is invalid or does not exist..\n");
+            return NULL; // file tree walker failed
+        }
+        fclose (fp);
     }
     return NULL;
 }
@@ -68,33 +127,18 @@ static void *CurrentFilesThread()
 static void *SleepingThread()
 {
     sleep(5);
-    run = false;
     return NULL;
 }
 
 int main(int argc, char *argv[])
 {
-    // file 1 will be current read from ftw
-    // file 2 will come from cached .name file
-    testVar = splitter(argv[1]);
-    testVar1 = splitter(argv[2]);
-    int x = TimeComparsion(testVar, testVar1);
-
-    if (x)
-        printf("Files have different last modification times.\n");
-    else
-        printf("Files are the same.\n");
-
-    int t1, t2;
-    pthread_t sleepingThread, currentFilesThread;
-    
     if (argc < 2)
     {
         printf("Usage is ./client filename\n");
         return 1;
     }
 
-       printf("Client program is initializing...\n");
+    printf("Client program is initializing...\n");
 
     t1 = pthread_create(&sleepingThread, NULL, &SleepingThread, NULL);
     if (t1 != 0)
@@ -112,7 +156,8 @@ int main(int argc, char *argv[])
 
    // create socket for client
     sockfd = socket(PF_INET, SOCK_STREAM, 0);
-    if (sockfd == -1) { 
+    if (sockfd == -1) 
+    {
         perror("Socket creation failed.\n") ; 
         return -1 ; 
     } 
@@ -159,10 +204,12 @@ int main(int argc, char *argv[])
         }
     }
     printf("Waiting to terminate cleanly...\n");
-    while(run)
-        continue;
+    // let the threads run.. till end
+    pthread_join(currentFilesThread, NULL);
+    pthread_join(sleepingThread, NULL);
 
     printf("\nTransfer succeeded!\n\n");
     close(sockfd);
     exit(0);
 }
+
