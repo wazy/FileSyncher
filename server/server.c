@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
              * fp1 = fopen(file, "w+");
             */
             FILE *fp1;
-            fp1 = fopen("./test.txt", "w+"); //static file name for now...
+            fp1 = fopen("./bin/test.txt", "w+"); //static file name for now...
             while(1)
             {
                 // the lower the more times we need to loop
