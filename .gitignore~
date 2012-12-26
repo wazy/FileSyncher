@@ -1,2 +1,6 @@
 client/bin/
 client_v2/bin/
+server/bin
+
+.names
+*.o
