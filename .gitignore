@@ -1,6 +1,8 @@
 client/bin/
 client_v2/bin/
-server/bin
+server/bin/
+server/*.dSYM/
+client/*.dSYM/
 
 .names
 *~

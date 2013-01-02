@@ -15,6 +15,7 @@
 #include <string.h>
 
 #define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
+#define PORT 7735
 
 int main(void)
 {
@@ -30,7 +31,7 @@ int main(void)
     server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = htons(INADDR_ANY);
-    server_address.sin_port = htons(7735);
+    server_address.sin_port = htons(PORT);
     server_len = sizeof(server_address);
 
     bind(server_sockfd, (struct sockaddr *) &server_address, server_len);
@@ -62,8 +63,12 @@ int main(void)
             // but if it is to high a small file will not transfer
             char fileArray[10];
             FILE *fp1;
-            fp1 = fopen("./bin/test.txt", "w+"); //static file name for now...
-
+            char *homeDir = getenv("HOME");
+            homeDir = strcat(homeDir, "/FileSyncher/server/test.txt");
+            fp1 = fopen(homeDir, "w+"); //static file name for now...
+            if (fp1 == NULL)
+              printf("ERROR");
+            printf("1");
             while(1)
             {
                 // recieve from client on client_sockfd
@@ -73,7 +78,9 @@ int main(void)
                     break;
 
                 printf("%s", fileArray);
-                fwrite(fileArray, rc, 1, fp1);  // write rc amount of bits
+                int x = fwrite(fileArray, rc, 1, fp1);  // write rc amount of bits
+                 if (x < 0) 
+                  printf("file write error");
                 bzero(fileArray, sizeof(fileArray));          // clean the array
             }
             fclose(fp1);
