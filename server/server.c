@@ -1,6 +1,6 @@
 /* 
- * Server Version 0.02
- * ~12/08/12~
+ * Server Version 0.03
+ * ~1/1/13~
  *
 */
 
@@ -12,8 +12,11 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <string.h>
 
-int main(int argc, char *argv[])
+#define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
+
+int main(void)
 {
     // variables
     int server_sockfd, client_sockfd;
@@ -31,18 +34,18 @@ int main(int argc, char *argv[])
     server_len = sizeof(server_address);
 
     bind(server_sockfd, (struct sockaddr *) &server_address, server_len);
-    
+
     printf("Server is initialized and listening for clients..\n");
-    
+
     // connection queue and waiting for clients
     while (1)
     {
         listen(server_sockfd, 5);
-     
+
         client_len = sizeof(client_address);
         client_sockfd = accept(server_sockfd, (struct sockaddr *) &client_address, &client_len);
         printf("\nClient socket is number = %d.\n\n", client_sockfd) ; 
-        
+
         pid_t pid;
         pid = fork();
         // implemented calling a child process to take care of file transfer
@@ -54,26 +57,27 @@ int main(int argc, char *argv[])
              * recv(client_sockfd, &file, sizeof(file), 0);
              * fp1 = fopen(file, "w+");
             */
+
+            // the lower the more times we need to loop
+            // but if it is to high a small file will not transfer
+            char fileArray[10];
             FILE *fp1;
             fp1 = fopen("./bin/test.txt", "w+"); //static file name for now...
+
             while(1)
             {
-                // the lower the more times we need to loop
-                // but if it is to high a small file will not transfer
-                char ch[10];
-                size_t len;
-                len = sizeof(ch);
                 // recieve from client on client_sockfd
-                rc = recv(client_sockfd, &ch, len, 0);
+                rc = recv(client_sockfd, fileArray, sizeof(fileArray), 0);
                 // if nothing left to read end loop
                 if (rc <= 0) 
                     break;
-                // this is only for debugging
-                printf("%s", ch );
-                fwrite(ch, sizeof(ch), 1, fp1);
+
+                printf("%s", fileArray);
+                fwrite(fileArray, rc, 1, fp1);  // write rc amount of bits
+                bzero(fileArray, sizeof(fileArray));          // clean the array
             }
             fclose(fp1);
-            //shutdown(client_sockfd, 1);
+            shutdown(client_sockfd, SHUT_WR);
             //write(client_sockfd, "Finished", 1);
             close(client_sockfd);
             return 0;

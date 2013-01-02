@@ -208,7 +208,11 @@ int main(int argc, char *argv[])
             p += bytes_written;
         }
     }
+
     printf("Waiting to terminate cleanly...\n");
+    
+    shutdown(sockfd, SHUT_WR);
+    
     // let the threads run.. till end
     pthread_join(currentFilesThread, NULL);
     pthread_join(sleepingThread, NULL);
@@ -217,4 +221,3 @@ int main(int argc, char *argv[])
     close(sockfd);
     exit(0);
 }
-
