@@ -19,9 +19,9 @@ bool TimeComparsion(char *currentFile, char *cachedFile)
     token = strtok(s, ":");
     token2 = strtok(t, ":");
     
-    int z = atoi(token);
-    int y = atoi(token2);
-    int x = z - y;
+    z = atoi(token);
+    y = atoi(token2);
+    x = z - y;
 
     if (x != 0)
         return 0; // different hours

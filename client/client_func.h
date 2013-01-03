@@ -16,6 +16,7 @@
 #include <fcntl.h>
 #include <pwd.h>
 #include <pthread.h>
+#include <limits.h>
 
 typedef int bool;
 #define true  1
@@ -24,11 +25,13 @@ typedef int bool;
 // Function declaration for timestamp of two files
 bool TimeComparsion(char *currentFile, char *cachedFile);
 
+bool IsFileCached(const char *path);
+
 int sockfd;
 int len;
 struct sockaddr_in address;
 int result;
-int x;
+int x, y, z;
 char *testVar;
 char *testVar1;
 FILE *fp;

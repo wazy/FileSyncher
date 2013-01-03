@@ -14,7 +14,6 @@
 #include <sys/types.h>
 #include <string.h>
 
-#define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
 #define PORT 7735
 
 int main(void)
@@ -59,8 +58,6 @@ int main(void)
              * fp1 = fopen(file, "w+");
             */
 
-            // the lower the more times we need to loop
-            // but if it is to high a small file will not transfer
             char fileArray[10];
             FILE *fp1;
             char *homeDir = getenv("HOME");
@@ -78,10 +75,10 @@ int main(void)
                     break;
 
                 printf("%s", fileArray);
-                int x = fwrite(fileArray, rc, 1, fp1);  // write rc amount of bits
-                 if (x < 0) 
-                  printf("file write error");
-                bzero(fileArray, sizeof(fileArray));          // clean the array
+                int x = fwrite(fileArray, rc, 1, fp1);         // write rc amount of bits
+                if (x < 0) 
+                    printf("file write error");
+                memset(fileArray, '\0', sizeof(fileArray));    // clean the array
             }
             fclose(fp1);
             shutdown(client_sockfd, SHUT_WR);

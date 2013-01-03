@@ -24,9 +24,12 @@ FILE *fp1;
 // what we want is the filename which is in path
 int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwbuf)
 {
+	//printf(" %s ", ctime(&ptr->st_mtime));
+    x = IsFileCached(path);
+    printf("%d", x);
     while(!updateFile && (fgets(str, sizeof(str), fp) != NULL))
     {
-        int len = strlen(str)-1;
+        len = strlen(str)-1;
         if (str[len] == '\n')
             str[len] = 0;
 
@@ -63,7 +66,7 @@ int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwb
     if (updateFile && fp != NULL)
     {
         currentFileTime = splitter(path);
-        fprintf (fp, "%s\t%s\n", path, currentFileTime);
+        fprintf (fp, "%s\t%s\tDirectory Level=%d\tFlags=%d\n", path, currentFileTime, ftwbuf->level, flag);
         free(currentFileTime);
     }
     
@@ -75,6 +78,23 @@ int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwb
     return 0;
 }
 
+bool IsFileCached(const char *path)
+{
+        char tmp[LINE_MAX]={0};
+        while(fp!=NULL && fgets(tmp, sizeof(tmp),fp)!=NULL)
+        {
+            if (strstr(tmp, path))
+            {
+                rewind(fp);
+                return 1;
+             }
+        }
+
+        //if(fp!=NULL) 
+          //  fclose(fp);
+        rewind(fp);
+        return 0;
+}
 static void *CurrentFilesThread()
 {
     // gets home path and cats the source folder to it

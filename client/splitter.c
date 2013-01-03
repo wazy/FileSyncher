@@ -12,7 +12,7 @@ char *splitter(const char *currentFileStamp)
 {
     struct stat sb;
     stat(currentFileStamp, &sb);
-    char s[256];
+    char s[100];
     strcpy(s, ctime(&sb.st_mtime));
     char *token = strtok(s, " ");
     int count = 0;
