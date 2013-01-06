@@ -1,3 +1,10 @@
+/*
+ *  Establish and transfer the file
+ *  Version 0.01
+ *  ~1/6/13~
+ *
+*/
+
 #include "client_func.h"
 #define PORT 7735
 #define ADDRESS "127.0.0.1" 
