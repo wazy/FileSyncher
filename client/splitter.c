@@ -8,14 +8,17 @@
 
 #include "client_func.h"
 
+char s[100];
+char *token;
+int count;
+
 char *splitter(const char *currentFileStamp)
 {
     struct stat sb;
     stat(currentFileStamp, &sb);
-    char s[100];
     strcpy(s, ctime(&sb.st_mtime));
-    char *token = strtok(s, " ");
-    int count = 0;
+    token = strtok(s, " ");
+    count = 0;
     while (token && count < 3) {
         token = strtok(NULL, " ");
         count++;

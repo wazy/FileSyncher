@@ -1,6 +1,6 @@
 /* 
- * Server Version 0.03
- * ~1/1/13~
+ * Server Version 0.04
+ * ~1/6/13~
  *
 */
 
@@ -13,8 +13,13 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <string.h>
+#include <errno.h>
 
 #define PORT 7735
+#define BUFFER_SIZE 1024
+
+FILE *fp1;
+char fileArray[10];
 
 int main(void)
 {
@@ -44,28 +49,46 @@ int main(void)
 
         client_len = sizeof(client_address);
         client_sockfd = accept(server_sockfd, (struct sockaddr *) &client_address, &client_len);
-        printf("\nClient socket is number = %d.\n\n", client_sockfd) ; 
+        printf("\nClient socket is number = %d.\n\n", client_sockfd - 3) ; 
 
         pid_t pid;
         pid = fork();
         // implemented calling a child process to take care of file transfer
         if (pid == 0)
         {
-            /* 
-             * // Tried implementing taking filename here.. NYI   
-             * char file[8];
-             * recv(client_sockfd, &file, sizeof(file), 0);
-             * fp1 = fopen(file, "w+");
-            */
+            /* taking filename here.. far from complete */  
+            size_t buffer_size;
+            rc = read(client_sockfd, &buffer_size, sizeof(buffer_size)); //read filename size
+            char *file = malloc(buffer_size);
 
-            char fileArray[10];
-            FILE *fp1;
+            if (file == NULL)
+            {
+                printf("Malloc failed: unable to continue.\n");
+                exit(EXIT_FAILURE);
+            }
+
+            int rv = read(client_sockfd, file, buffer_size);
+            printf("%s\n", file);
+
+            if (rc <= 0) //no filename received 
+            {
+                printf("The filename was not correctly received.\n");
+                exit(EXIT_FAILURE);
+            }
+            /*
             char *homeDir = getenv("HOME");
-            homeDir = strcat(homeDir, "/FileSyncher/server/test.txt");
+            homeDir = strcat(homeDir, "/FileSyncher/test.txt");
             fp1 = fopen(homeDir, "w+"); //static file name for now...
+            */
+            fp1 = fopen(file, "w+");
+            if (file != NULL)
+                free(file);
             if (fp1 == NULL)
-              printf("ERROR");
-            printf("1");
+            {
+                printf("ERROR: write permissions are not correct for %s\n", file);
+                exit(EXIT_FAILURE);
+            }
+            printf("\nContent:\n");
             while(1)
             {
                 // recieve from client on client_sockfd
@@ -81,7 +104,7 @@ int main(void)
                 memset(fileArray, '\0', sizeof(fileArray));    // clean the array
             }
             fclose(fp1);
-            shutdown(client_sockfd, SHUT_WR);
+            shutdown(client_sockfd, 2);
             //write(client_sockfd, "Finished", 1);
             close(client_sockfd);
             return 0;

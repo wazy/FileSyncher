@@ -22,10 +22,12 @@ typedef int bool;
 #define true  1
 #define false 0
 
-// Function declaration for timestamp of two files
+/* Function declaration for timestamp of two files */
 bool TimeComparsion(char *currentFile, char *cachedFile);
 
 bool IsFileCached(const char *path);
+
+int NetworkConnection();
 
 int sockfd;
 int len;
@@ -35,6 +37,8 @@ int x, y, z;
 char *testVar;
 char *testVar1;
 FILE *fp;
+
+
 
 /* Function declaration for a function that splits array into 
  * individual tokens
