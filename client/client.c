@@ -1,6 +1,6 @@
 /* 
- * Client Version 0.05
- * ~1/6/13~
+ * Client Version 0.06
+ * ~1/7/13~
  *
 */
 
@@ -11,10 +11,6 @@
 
 bool uploadAll = false;
 bool updateFile = false;
-int thread1, equalTimes, fileTransferSucceeded;
-pthread_t currentFilesThread;
-char *fileName, *currentFileTime, *cachedFileTime, str[400];
-FILE *fp1;
 
 /*
  * nftw takes this as an argument about what to do
@@ -22,7 +18,7 @@ FILE *fp1;
  */
 int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwbuf)
 {
-    x = IsFileCached(path);
+    int x = IsFileCached(path);
     if (x)
     {
         printf("match found -> %s\n", path);
@@ -52,8 +48,8 @@ int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwb
         {
             fclose(fp1);
             /* get its latest modified time and check it to cached */
-            currentFileTime = splitter((const char *) fileName);
-            equalTimes = TimeComparsion(cachedFileTime, currentFileTime);
+            currentFileTime = GetLastModifiedTime((const char *) fileName);
+            equalTimes = TimeComparsion(currentFileTime, cachedFileTime);
             if (!equalTimes)
             {
                 printf("File: %s, has been modified.\n", fileName);
@@ -71,11 +67,11 @@ int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwb
     /* print the filename and last modified date to .names */
     if (updateFile && fp != NULL)
     {
-        currentFileTime = splitter(path);
-        fprintf (fp, "%s\t%s\tDirectory Level=%d\tFlags=%d\n", path, currentFileTime, ftwbuf->level, flag);
+        currentFileTime = GetLastModifiedTime(path);
+        fprintf(fp, "%s\t%s\tDirectory Level=%d\tFlags=%d\n", path, currentFileTime, ftwbuf->level, flag);
         free(currentFileTime);
     }
-    
+
     /* NYI: when no cached file exists */
     if (uploadAll)
     {
@@ -110,7 +106,7 @@ static void *CurrentFilesThread()
 {
     /* gets home path and cats the source folder to it */
     char *homeDir = getenv("HOME");
-    homeDir = strcat(homeDir, "/FileSyncher/bin/");
+    homeDir = strcat(homeDir, "/FileSyncher/");
 
     /* if we can't get home environment try this */
     if (!homeDir) 
@@ -118,7 +114,7 @@ static void *CurrentFilesThread()
         struct passwd* pwd = getpwuid(getuid());
         if (pwd)
            homeDir = pwd->pw_dir;
-           homeDir = strcat(homeDir, "/FileSyncher/bin/");
+           homeDir = strcat(homeDir, "/FileSyncher/");
     }
 
     /* cached file is .names */

@@ -18,31 +18,27 @@
 #include <pthread.h>
 #include <limits.h>
 
+#define PORT 7735
+#define ADDRESS "127.0.0.1" 
+
 typedef int bool;
 #define true  1
 #define false 0
 
-/* Function declaration for timestamp of two files */
-bool TimeComparsion(char *currentFile, char *cachedFile);
-
+/* Function declarations */
+bool TimeComparsion(char *currentFileTimeStamp, char *cachedFileTimeStamp);
 bool IsFileCached(const char *path);
+char *GetLastModifiedTime(const char *currentFileStamp);
+int NetworkConnection(const char *filePath);
 
-int NetworkConnection();
-
-int sockfd;
-int len;
+/* Variables */
 struct sockaddr_in address;
-int result;
-int x, y, z;
-char *testVar;
-char *testVar1;
-FILE *fp;
-
-
-
-/* Function declaration for a function that splits array into 
- * individual tokens
- */
-char *splitter(const char *currentFileStamp);
+struct stat sb;
+FILE *fp, *fp1;
+pthread_t currentFilesThread;
+int sockfd, len, result, HMS_Difference, HMS_Cached, HMS_Current;
+int thread1, equalTimes, fileTransferSucceeded, count;
+char *fileName, *currentFileTime, *cachedFileTime, *token, *token2;
+char s[100], str[400], fileTimeCurrent[256], fileTimeCached[256];
 
 #endif

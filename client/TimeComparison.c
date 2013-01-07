@@ -1,54 +1,33 @@
 /*
- *  compare timestamps (1 is different)
- *  Version 0.01
- *  ~12/19/12~
+ *  Compare Timestamps
+ *  Version 0.02
+ *  ~1/7/13~
  *
 */
 
+enum TimeDifference
+{
+    DIFFERENT_LAST_MODIFIED_TIME,
+    SAME_LAST_MODIFIED_TIME
+};
+
 #include "client_func.h"
 
-bool TimeComparsion(char *currentFile, char *cachedFile)
+bool TimeComparsion(char *currentFileTimeStamp, char *cachedFileTimeStamp)
 {
-    /*printf("Time 1: %s	Time 2: %s\n", currentFile, cachedFile);*/
+    strcpy(fileTimeCurrent, currentFileTimeStamp);
+    strcpy(fileTimeCached, cachedFileTimeStamp);
 
-    char s[256], t[256];
-    char *token, *token2;
-    strcpy(s, currentFile);
-    strcpy(t, cachedFile);
+    while(1)
+    {
+        token          = strtok(fileTimeCurrent, ":");
+        token2         = strtok(fileTimeCached, ":");
+        HMS_Current    = atoi(token);                          /* HMS = hour/minute/second */
+        HMS_Cached     = atoi(token2);
+        HMS_Difference = HMS_Current - HMS_Cached;
 
-    token = strtok(s, ":");
-    token2 = strtok(t, ":");
-    
-    z = atoi(token);
-    y = atoi(token2);
-    x = z - y;
-
-    if (x != 0)
-        return 0; /* different hours */
-
-    token = strtok(s, ":");
-    token2 = strtok(t, ":");
-
-    x = (int *)token - (int *)token2;
-
-    z = atoi(token);
-    y = atoi(token2);
-    x = z - y;
-
-    if (x != 0)
-        return 0; /* different minutes */
-
-    token = strtok(s, ":");
-    token2 = strtok(t, ":");
-
-    x = (int *)token - (int *)token2;
-
-    z = atoi(token);
-    y = atoi(token2);
-    x = z - y;
-
-    if (x != 0)
-        return 0; /* different seconds */
-
-    return 1; /* same time */
+        if (HMS_Difference == DIFFERENT_LAST_MODIFIED_TIME)    /* different last modified times */
+            return DIFFERENT_LAST_MODIFIED_TIME;
+    }
+    return SAME_LAST_MODIFIED_TIME;                            /* same time */
 }

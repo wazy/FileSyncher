@@ -1,18 +1,22 @@
 #make client binary
-client: splitter.o TimeComparison.o client.o
-	gcc -o ./bin/client splitter.o TimeComparison.o client.o -lpthread
+client: GetLastModifiedTime.o TimeComparison.o client.o NetworkConnection.o
+	gcc -o ./bin/client GetLastModifiedTime.o TimeComparison.o client.o NetworkConnection.o -lpthread
 
 #client object
 client.o: client.c client_func.h
-	gcc -W -Wall -g -c client.c
+	gcc -Wshadow -pedantic -Wall -Wextra -g -c client.c
 
 #TimeComparison object
 TimeComparison.o: TimeComparison.c client_func.h
-	gcc -W -Wall -g -c TimeComparison.c
+	gcc -Wshadow -pedantic -Wall -Wextra -g -c TimeComparison.c
 
-#splitter object
-splitter.o: splitter.c client_func.h
-	gcc -W -Wall -g -c splitter.c
+#GetLastModifiedTime object
+GetLastModifiedTime.o: GetLastModifiedTime.c client_func.h
+	gcc -Wshadow -pedantic -Wall -Wextra -g -c GetLastModifiedTime.c
+
+#NetworkConnection object
+NetworkConnection.o: NetworkConnection.c client_func.h
+	gcc -Wshadow -pedantic -Wall -Wextra -g -c NetworkConnection.c
 
 #what to do when make clean
 clean:
