@@ -39,6 +39,6 @@ pthread_t currentFilesThread;
 int sockfd, len, result, HMS_Difference, HMS_Cached, HMS_Current;
 int thread1, equalTimes, fileTransferSucceeded, count;
 char *fileName, *currentFileTime, *cachedFileTime, *token, *token2;
-char s[100], str[400], fileTimeCurrent[256], fileTimeCached[256];
+char s[100], str[400];
 
 #endif
