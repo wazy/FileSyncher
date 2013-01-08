@@ -26,8 +26,8 @@ bool TimeComparsion(char *currentFileTimeStamp, char *cachedFileTimeStamp)
         HMS_Cached     = atoi(token2);
         HMS_Difference = HMS_Current - HMS_Cached;
 
-        if (HMS_Difference == DIFFERENT_LAST_MODIFIED_TIME)    /* different last modified times */
-            return DIFFERENT_LAST_MODIFIED_TIME;
+        if (HMS_Difference != DIFFERENT_LAST_MODIFIED_TIME)    /* if zero, same times */
+            return SAME_LAST_MODIFIED_TIME;
     }
-    return SAME_LAST_MODIFIED_TIME;                            /* same time */
+    return DIFFERENT_LAST_MODIFIED_TIME;                       /* else different times */
 }

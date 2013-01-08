@@ -18,14 +18,13 @@ bool updateFile = false;
  */
 int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwbuf)
 {
-    int x = IsFileCached(path);
-    if (x)
+    if (!uploadAll && IsFileCached(path))
     {
         printf("match found -> %s\n", path);
-        printf(" %s ", ctime(&ptr->st_mtime));
+        printf("%s\n", ctime(&ptr->st_mtime));
     }
-    printf("%d\n", x);
-    while(!uploadAll && !updateFile && (fgets(str, sizeof(str), fp) != NULL))
+
+    while (!uploadAll && !updateFile && (fgets(str, sizeof(str), fp) != NULL))
     {
         len = strlen(str)-1;
         if (str[len] == '\n')
@@ -87,19 +86,12 @@ int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwb
 
 bool IsFileCached(const char *path)
 {
-    char tmp[LINE_MAX]={0};
-    while(fp!=NULL && fgets(tmp, sizeof(tmp),fp)!=NULL)
+    char tmp[LINE_MAX] = {0};
+    while (fp != NULL && fgets(tmp, sizeof(tmp), fp) != NULL)
     {
         if (strstr(tmp, path))
-        {
-            rewind(fp);
             return 1;
-         }
     }
-
-    /* if(fp!=NULL) 
-        fclose(fp); */
-    rewind(fp);
     return 0;
 }
 static void *CurrentFilesThread()
@@ -125,6 +117,7 @@ static void *CurrentFilesThread()
     {
         printf("WARNING: No cached file exists.\n");
         uploadAll = true;
+        updateFile = true;
         fp = fopen (".names", "w+");
     
         /* this will find all files in the FS directory */
