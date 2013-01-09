@@ -7,16 +7,16 @@
 
 enum TimeDifference
 {
-    DIFFERENT_LAST_MODIFIED_TIME,
-    SAME_LAST_MODIFIED_TIME
+    SAME_LAST_MODIFIED_TIME,
+    DIFFERENT_LAST_MODIFIED_TIME
 };
 
 #include "client_func.h"
 
-int TimeComparsion(char *currentFileTimeStamp, char *cachedFileTimeStamp)
+bool TimeComparsion(char *currentFileTimeStamp, char *cachedFileTimeStamp)
 {
-    token          = strtok_r(currentFileTimeStamp, ":", &currentFileTimeStamp);
-    token2         = strtok_r(cachedFileTimeStamp, ":", &cachedFileTimeStamp);
+    token = strtok_r(currentFileTimeStamp, ":", &currentFileTimeStamp);
+    token2 = strtok_r(cachedFileTimeStamp, ":", &cachedFileTimeStamp);
 
     while((token != NULL) && (token2 != NULL))
     {
@@ -24,12 +24,12 @@ int TimeComparsion(char *currentFileTimeStamp, char *cachedFileTimeStamp)
         HMS_Cached     = atoi(token2);
         HMS_Difference = HMS_Current - HMS_Cached;
 
-        if (HMS_Difference != DIFFERENT_LAST_MODIFIED_TIME)    /* if zero, same times */
-            return SAME_LAST_MODIFIED_TIME;
-        
-        token          = strtok_r(currentFileTimeStamp, ":", &currentFileTimeStamp);
-        token2         = strtok_r(cachedFileTimeStamp, ":", &cachedFileTimeStamp);
+        if (HMS_Difference != SAME_LAST_MODIFIED_TIME)         /* if zero then the delimit is the same */
+            return DIFFERENT_LAST_MODIFIED_TIME;
+
+        token = strtok_r(currentFileTimeStamp, ":", &currentFileTimeStamp);
+        token2 = strtok_r(cachedFileTimeStamp, ":", &cachedFileTimeStamp);
     }
-    
-    return DIFFERENT_LAST_MODIFIED_TIME;                       /* else different times */
+
+    return SAME_LAST_MODIFIED_TIME;                            /* else same times */
 }

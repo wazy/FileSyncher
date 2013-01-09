@@ -11,6 +11,7 @@
 
 bool uploadAll = false;
 bool updateFile = false;
+char tmp[LINE_MAX] = {0};
 
 /*
  * nftw takes this as an argument about what to do
@@ -18,20 +19,22 @@ bool updateFile = false;
  */
 int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwbuf)
 {
-    if (!uploadAll && IsFileCached(path))
+    while (!uploadAll && !updateFile && (fgets(tmp, sizeof(tmp), fp) != NULL))
     {
-        printf("match found -> %s\n", path);
-        printf("%s\n", ctime(&ptr->st_mtime));
-    }
+        if ( ptr->st_mode && S_IFDIR )
+             printf("DIRECTORY:%s\n", path);
 
-    while (!uploadAll && !updateFile && (fgets(str, sizeof(str), fp) != NULL))
-    {
-        len = strlen(str)-1;
-        if (str[len] == '\n')
-            str[len] = 0;
+        if (!strstr(tmp, path))
+        {
+            printf("Not cached!\n");
+            return EXIT_FAILURE;
+        }
+        len = strlen(tmp)-1;
+        if (tmp[len] == '\n')
+            tmp[len] = 0;
 
         /* read filename and last modified time */
-        fileName = strtok(str, "\t");
+        fileName = strtok(tmp, "\t");
         cachedFileTime = strtok(NULL, "\t");
 
         /* check if the file read from the file is valid or not */
@@ -49,15 +52,15 @@ int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwb
             /* get its latest modified time and check it to cached */
             currentFileTime = GetLastModifiedTime((const char *) fileName);
             equalTimes = TimeComparsion(currentFileTime, cachedFileTime);
-            if (!equalTimes)
+
+            if (equalTimes)
             {
-                printf("File: %s, has been modified.\n", fileName);
+                printf("File: %s has been modified.\n", fileName);
                 fileTransferSucceeded = NetworkConnection(path);
                 if (!fileTransferSucceeded)
                     printf("Connection failed!\n");
                 else
                     printf("Transfer succeeded");
-                equalTimes = 1;
             }
             free(currentFileTime);
         }
@@ -84,21 +87,11 @@ int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwb
     return 0;
 }
 
-bool IsFileCached(const char *path)
-{
-    char tmp[LINE_MAX] = {0};
-    while (fp != NULL && fgets(tmp, sizeof(tmp), fp) != NULL)
-    {
-        if (strstr(tmp, path))
-            return 1;
-    }
-    return 0;
-}
 static void *CurrentFilesThread()
 {
     /* gets home path and cats the source folder to it */
     char *homeDir = getenv("HOME");
-    homeDir = strcat(homeDir, "/FileSyncher/");
+    homeDir = strcat(homeDir, "/FileSyncher/src/");
 
     /* if we can't get home environment try this */
     if (!homeDir) 
@@ -106,7 +99,7 @@ static void *CurrentFilesThread()
         struct passwd* pwd = getpwuid(getuid());
         if (pwd)
            homeDir = pwd->pw_dir;
-           homeDir = strcat(homeDir, "/FileSyncher/");
+           homeDir = strcat(homeDir, "/FileSyncher/src/");
     }
 
     /* cached file is .names */
@@ -174,6 +167,6 @@ int main(int argc, char *argv[])
     /* let the threads run.. till end */
     pthread_join(currentFilesThread, NULL);
     
-    printf("\n\nSync succeeded!\n\n");
+    printf("\n-------Sync succeeded!-------\n\n");
     exit(EXIT_SUCCESS);
 }

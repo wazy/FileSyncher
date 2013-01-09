@@ -12,7 +12,7 @@
 #include <string.h>
 #include <errno.h>
 
-#define PORT 7735
+#define PORT 7736
 
 FILE *fp1;
 pid_t pid;

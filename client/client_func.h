@@ -18,7 +18,7 @@
 #include <pthread.h>
 #include <limits.h>
 
-#define PORT 7735
+#define PORT 7736
 #define ADDRESS "127.0.0.1" 
 
 typedef int bool;
@@ -27,7 +27,6 @@ typedef int bool;
 
 /* Function declarations */
 bool TimeComparsion(char *currentFileTimeStamp, char *cachedFileTimeStamp);
-bool IsFileCached(const char *path);
 char *GetLastModifiedTime(const char *currentFileStamp);
 int NetworkConnection(const char *filePath);
 
