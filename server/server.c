@@ -6,32 +6,28 @@
 
 #include "server.h"
 
-typedef struct pointer {
-  int *sockaddr;
-} sockets;
-
 int main(void)
 {
+    serverSocket server;
+    serverSocket client;
     /* removing old and creating socket for server on defined port */
-    sockets sock;
-    server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    server_address.sin_family = AF_INET;
-    server_address.sin_addr.s_addr = htons(INADDR_ANY);
-    server_address.sin_port = htons(PORT);
-    server_len = sizeof(server_address);
+    server.socketdescriptor            = socket(AF_INET, SOCK_STREAM, 0);
+    server.connection.sin_family       = AF_INET;
+    server.connection.sin_addr.s_addr  = htons(INADDR_ANY);
+    server.connection.sin_port         = htons(PORT);
+    server.len                         = sizeof(server);
 
-    bind(server_sockfd, (sock) &server_address, server_len);
+    bind(server.socketdescriptor, (struct sockaddr *) &server, server.len);
 
     printf("Server is initialized and listening for clients..\n");
 
     /* connection queue and waiting for clients */
     while (1)
     {
-        listen(server_sockfd, 5);
-
-        client_len = sizeof(client_address);
-        client_sockfd = accept(server_sockfd, (sock) &client_address, &client_len);
-        printf("\nClient socket is number = %d.\n\n", client_sockfd - 3) ; 
+        listen(server.socketdescriptor, 5);
+        client.len              = sizeof(client);
+        client.socketdescriptor = accept(server.socketdescriptor, (struct sockaddr *) &client, &client.len);
+        printf("\nClient socket is number = %d.\n\n", client.socketdescriptor - 3) ; 
 
         pid = fork();
         /* implemented calling a child process to take care of file transfer */
@@ -39,7 +35,7 @@ int main(void)
         {
             /* taking filename here.. far from complete */  
             size_t buffer_size;
-            rc = read(client_sockfd, &buffer_size, sizeof(buffer_size)); /* read filename size */
+            rc = read(client.socketdescriptor, &buffer_size, sizeof(buffer_size)); /* read filename size */
             file = malloc(buffer_size);
 
             if (file == NULL)
@@ -48,7 +44,7 @@ int main(void)
                 exit(EXIT_FAILURE);
             }
 
-            rv = read(client_sockfd, file, buffer_size);
+            rv = read(client.socketdescriptor, file, buffer_size);
             printf("%s\n", file);
 
             if (rc <= 0) /* no filename received */ 
@@ -73,7 +69,7 @@ int main(void)
             while(1)
             {
                 /* recieve from client on client_sockfd */
-                rc = recv(client_sockfd, fileArray, sizeof(fileArray), 0);
+                rc = recv(client.socketdescriptor, fileArray, sizeof(fileArray), 0);
                 /* if nothing left to read end loop */
                 if (rc <= 0) 
                     break;
@@ -85,9 +81,9 @@ int main(void)
                 memset(fileArray, '\0', sizeof(fileArray));    /* clean the array */
             }
             fclose(fp1);
-            shutdown(client_sockfd, 2);
+            shutdown(client.socketdescriptor, 2);
             /* write(client_sockfd, "Finished", 1); */
-            close(client_sockfd);
+            close(client.socketdescriptor);
             return 0;
         }
     else if (pid < 0) 

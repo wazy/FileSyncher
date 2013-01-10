@@ -12,15 +12,24 @@
 #include <string.h>
 #include <errno.h>
 
-#define PORT 7736
+#define PORT 7737
+
+
+typedef struct
+{
+    int socketdescriptor;
+    unsigned len;
+    struct sockaddr_in connection;
+} serverSocket;
+
 
 FILE *fp1;
 pid_t pid;
 char fileArray[8*1024];
-int server_sockfd, client_sockfd, server_len, rc, rv, x;
-unsigned client_len;
-struct sockaddr_in server_address;
-struct sockaddr_in client_address;
+int server_sockfd, client_sockfd, rc, rv, x;
+/*unsigned client_len;
+struct sockaddr_in server_address; 
+struct sockaddr_in client_address; */
 char *file;
 
 #endif
