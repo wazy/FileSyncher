@@ -1,7 +1,7 @@
 /*
  *  Establish and transfer the file
- *  Version 0.02
- *  ~1/7/13~
+ *  Version 0.03
+ *  ~1/10/13~
  *
 */
 
@@ -17,7 +17,7 @@ char buffer[8*1024];
 int fileDescriptor;
 size_t fileNameLength;
 
-int NetworkConnection(const char *filePath)
+int NetworkConnection(const char *filePath, int isDirectory)
 { 
     /* create socket for client */
     sockfd = socket(PF_INET, SOCK_STREAM, 0);
@@ -45,29 +45,35 @@ int NetworkConnection(const char *filePath)
     write(sockfd, &fileNameLength, sizeof(fileNameLength));    /* to send file name size */
     write(sockfd, filePath, fileNameLength);                   /* to send file name itself */
 
-    /* open the user's file */
-    fileDescriptor = open(filePath, O_RDONLY);
-    while (1)
+    if (isDirectory)
+        write(sockfd, "d", 1);
+    else
     {
-        /* read data into buffer */
-        int bytes_read = read(fileDescriptor, buffer, sizeof(buffer));
-        if (bytes_read == 0) /* nothing left to read */
-            break;
-
-        if (bytes_read < 0)
-            return FileTransferException;
-
-        /*
-         *  will loop to write all data, we must make sure to read
-         *  and maintain our current position using p
-         */
-        while (bytes_read > 0)
+        write(sockfd, "f", 1);	
+        /* open the user's file */
+        fileDescriptor = open(filePath, O_RDONLY);
+        while (1)
         {
-            int bytes_written = write(sockfd, buffer, bytes_read);
-            if (bytes_written <= 0)
+            /* read data into buffer */
+            int bytes_read = read(fileDescriptor, buffer, sizeof(buffer));
+            if (bytes_read == 0) /* nothing left to read */
+                break;
+
+            if (bytes_read < 0)
                 return FileTransferException;
 
-            bytes_read -= bytes_written;
+            /*
+             *  will loop to write all data, we must make sure to read
+             *  and maintain our current position using p
+             */
+            while (bytes_read > 0)
+            {
+                int bytes_written = write(sockfd, buffer, bytes_read);
+                if (bytes_written <= 0)
+                    return FileTransferException;
+
+                bytes_read -= bytes_written;
+            }
         }
     }
     shutdown(sockfd, 2);
