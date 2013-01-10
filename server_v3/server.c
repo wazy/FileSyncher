@@ -8,12 +8,12 @@
 
 typedef struct pointer {
   int *sockaddr;
-} sockets;
+} socket;
 
 int main(void)
 {
     /* removing old and creating socket for server on defined port */
-    sockets sock;
+    socket sock;
     server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = htons(INADDR_ANY);
