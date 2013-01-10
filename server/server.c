@@ -1,6 +1,6 @@
 /* 
- * Server Version 0.05
- * ~1/7/13~
+ * Server Version 0.06
+ * ~1/10/13~
  *
 */
 
@@ -17,7 +17,7 @@ int main(void)
     server.connection.sin_port         = htons(PORT);
     server.len                         = sizeof(server);
 
-    bind(server.socketdescriptor, (struct sockaddr *) &server, server.len);
+    bind(server.socketdescriptor, (struct sockaddr *) &server.connection, server.len);
 
     printf("Server is initialized and listening for clients..\n");
 
@@ -26,7 +26,7 @@ int main(void)
     {
         listen(server.socketdescriptor, 5);
         client.len              = sizeof(client);
-        client.socketdescriptor = accept(server.socketdescriptor, (struct sockaddr *) &client, &client.len);
+        client.socketdescriptor = accept(server.socketdescriptor, (struct sockaddr *) &client.connection, &client.len);
         printf("\nClient socket is number = %d.\n\n", client.socketdescriptor - 3) ; 
 
         pid = fork();
@@ -57,6 +57,12 @@ int main(void)
             homeDir = strcat(homeDir, "/FileSyncher/test.txt");
             fp1 = fopen(homeDir, "w+"); //static file name for now...
             */
+			char storage[1];
+			rv = read(client.socketdescriptor, storage, 1);
+			
+			printf("%s", storage);
+			
+			
             fp1 = fopen(file, "w+");
             if (file != NULL)
                 free(file);
