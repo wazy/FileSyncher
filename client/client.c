@@ -1,6 +1,6 @@
 /* 
- * Client Version 0.06
- * ~1/7/13~
+ * Client Version 0.07
+ * ~1/10/13~
  *
 */
 
