@@ -12,6 +12,7 @@
 bool uploadAll = false;
 bool updateFile = false;
 char tmp[LINE_MAX] = {0};
+int isDirectory = 0;
 
 /*
  * nftw takes this as an argument about what to do
@@ -21,9 +22,6 @@ int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwb
 {
     while (!uploadAll && !updateFile && (fgets(tmp, sizeof(tmp), fp) != NULL))
     {
-        if ( ptr->st_mode && S_IFDIR )
-             printf("DIRECTORY:%s\n", path);
-
         if (!strstr(tmp, path))
         {
             printf("Not cached!\n");
@@ -56,7 +54,7 @@ int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwb
             if (equalTimes)
             {
                 printf("File: %s has been modified.\n", fileName);
-                fileTransferSucceeded = NetworkConnection(path);
+                fileTransferSucceeded = NetworkConnection(path, isDirectory);
                 if (!fileTransferSucceeded)
                     printf("Connection failed!\n");
                 else
@@ -78,7 +76,10 @@ int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwb
     if (uploadAll)
     {
         printf("uploading file... %s\n", path);
-        fileTransferSucceeded = NetworkConnection(path);
+        if (ptr->st_mode && S_IFDIR)
+            isDirectory = 1;
+
+        fileTransferSucceeded = NetworkConnection(path, isDirectory);
         if (!fileTransferSucceeded)
             printf("Connection failed!\n");
         else
