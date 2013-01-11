@@ -1,5 +1,5 @@
 /* 
- * Client Version 0.07
+ * Client Version 0.08
  * ~1/10/13~
  *
 */
@@ -12,7 +12,6 @@
 bool uploadAll = false;
 bool updateFile = false;
 char tmp[LINE_MAX] = {0};
-int isDirectory = 0;
 
 /*
  * nftw takes this as an argument about what to do
@@ -20,6 +19,7 @@ int isDirectory = 0;
  */
 int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwbuf)
 {
+    isDirectory = 0;
     while (!uploadAll && !updateFile && (fgets(tmp, sizeof(tmp), fp) != NULL))
     {
         if (!strstr(tmp, path))
@@ -34,6 +34,7 @@ int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwb
         /* read filename and last modified time */
         fileName = strtok(tmp, "\t");
         cachedFileTime = strtok(NULL, "\t");
+        isDirectory = atoi(strtok(NULL, "\t"));    /* !0 indicates a directory */
 
         /* check if the file read from the file is valid or not */
         if ((fp1 = fopen(fileName, "r")) == NULL)
@@ -53,12 +54,13 @@ int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwb
 
             if (equalTimes)
             {
-                printf("File: %s has been modified.\n", fileName);
-                fileTransferSucceeded = NetworkConnection(path, isDirectory);
+                fileTransferSucceeded = NetworkConnection(fileName, isDirectory);
                 if (!fileTransferSucceeded)
-                    printf("Connection failed!\n");
-                else
-                    printf("Transfer succeeded");
+                {
+                    printf("\nFATAL: Transfer failed in updating %s.\n", fileName);
+                    return EXIT_FAILURE;
+                }
+                printf("File: %s has been updated.\n", fileName);
             }
             free(currentFileTime);
         }
@@ -68,22 +70,21 @@ int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwb
     if (updateFile && fp != NULL)
     {
         currentFileTime = GetLastModifiedTime(path);
-        fprintf(fp, "%s\t%s\tDirectory Level=%d\tFlags=%d\n", path, currentFileTime, ftwbuf->level, flag);
+        fprintf(fp, "%s\t%s\t%d\tDirectory Level=%d\tFlags=%d\n", path, currentFileTime, ptr->st_mode &S_IFDIR, ftwbuf->level, flag);
         free(currentFileTime);
     }
 
     /* NYI: when no cached file exists */
     if (uploadAll)
     {
-        printf("uploading file... %s\n", path);
-        if (ptr->st_mode && S_IFDIR)
+        printf("uploading... %s\n", path);
+        /* is directory? */
+        if (ptr->st_mode &S_IFDIR)
             isDirectory = 1;
 
         fileTransferSucceeded = NetworkConnection(path, isDirectory);
         if (!fileTransferSucceeded)
-            printf("Connection failed!\n");
-        else
-            printf("Transfer succeeded");
+            printf("\nTransfer failed for %s.\n", path);
     }
     return 0;
 }
@@ -109,7 +110,8 @@ static void *CurrentFilesThread()
     /* no cached file exists */
     if (fp == NULL)
     {
-        printf("WARNING: No cached file exists.\n");
+        printf("\nWARNING: No cached file exists.\n");
+        printf("Uploading all files and creating .names file.\n\n");
         uploadAll = true;
         updateFile = true;
         fp = fopen (".names", "w+");
@@ -148,15 +150,15 @@ static void *CurrentFilesThread()
 int main(int argc, char *argv[])
 {
     /* -help parameter from argv[1] */
-    if (argc > 1 && !strncmp(argv[1], "-help", 100))
+    if (argc > 1 && !strncmp(argv[1], "--help", 100))
     {
         printf("\nThis program will sync your local FileSyncher directory ");
         printf("with the remote server.\n");
-        printf("Usage is %s -parameters.\n\n", argv[0]);
+        printf("Usage is %s --parameters.\n\n", argv[0]);
         return EXIT_SUCCESS;
     }
 
-    printf("Client program is initializing...\n");
+    printf("\nClient program is initializing...\n");
 
     thread1 = pthread_create(&currentFilesThread, NULL, &CurrentFilesThread, NULL);
     if (thread1 != 0)

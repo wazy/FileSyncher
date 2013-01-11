@@ -22,7 +22,7 @@ typedef struct
     struct sockaddr_in connection;
 } serverSocket;
 
-
+size_t buffer_size, isDirectory;
 FILE *fp1;
 pid_t pid;
 char fileArray[8*1024];

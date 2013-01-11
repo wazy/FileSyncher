@@ -1,6 +1,6 @@
 /*
  *  Establish and transfer the file
- *  Version 0.03
+ *  Version 0.04
  *  ~1/10/13~
  *
 */
@@ -13,11 +13,7 @@ enum FileTransfer
     FileTransferSuccess
 };
 
-char buffer[8*1024];
-int fileDescriptor;
-size_t fileNameLength;
-
-int NetworkConnection(const char *filePath, int isDirectory)
+int NetworkConnection(const char *filePath, int fileIsDirectory)
 { 
     /* create socket for client */
     sockfd = socket(PF_INET, SOCK_STREAM, 0);
@@ -45,11 +41,15 @@ int NetworkConnection(const char *filePath, int isDirectory)
     write(sockfd, &fileNameLength, sizeof(fileNameLength));    /* to send file name size */
     write(sockfd, filePath, fileNameLength);                   /* to send file name itself */
 
-    if (isDirectory)
-        write(sockfd, "d", 1);
-    else
+    /* necessary check to prevent unexpected behavior */
+    if (fileIsDirectory > 0)
     {
-        write(sockfd, "f", 1);	
+        isDirectory = 1;                                       /* write 1 to server for directory */
+        write(sockfd, &fileIsDirectory, sizeof(fileIsDirectory));  
+    }
+    else if (!fileIsDirectory)
+    {
+        write(sockfd, &fileIsDirectory, sizeof(fileIsDirectory));      /* else this path is for a file */
         /* open the user's file */
         fileDescriptor = open(filePath, O_RDONLY);
         while (1)
