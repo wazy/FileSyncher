@@ -28,7 +28,7 @@ typedef int bool;
 /* Function declarations */
 bool TimeComparsion(char *currentFileTimeStamp, char *cachedFileTimeStamp);
 char *GetLastModifiedTime(const char *currentFileStamp);
-int NetworkConnection(const char *filePath);
+int NetworkConnection(const char *filePath, int isDirectory);
 
 /* Variables */
 struct sockaddr_in address;
