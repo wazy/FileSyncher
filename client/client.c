@@ -157,6 +157,21 @@ int main(int argc, char *argv[])
         printf("Usage is %s --parameters.\n\n", argv[0]);
         return EXIT_SUCCESS;
     }
+    if (argc > 1 && !strncmp(argv[1], "--clean", 100))
+    {
+        printf("\nRemoving .names file and starting from scratch.\n");
+        /* delete file here */
+        int status = remove(".names");
+        if (!status)
+        {
+            printf("Successfully removed... restarting...\n")
+        }
+        else
+        {
+            printf("ERROR: .names not successfully removed.\n")
+            return EXIT_FAILURE;
+        }
+    }
 
     printf("\nClient program is initializing...\n");
 
