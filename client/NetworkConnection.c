@@ -44,7 +44,7 @@ int NetworkConnection(const char *filePath, int fileIsDirectory)
     /* necessary check to prevent unexpected behavior */
     if (fileIsDirectory > 0)
     {
-        isDirectory = 1;                                       /* write 1 to server for directory */
+        fileIsDirectory = 1;                                   /* write 1 to server for directory */
         write(sockfd, &fileIsDirectory, sizeof(fileIsDirectory));  
     }
     else if (!fileIsDirectory)
@@ -52,6 +52,8 @@ int NetworkConnection(const char *filePath, int fileIsDirectory)
         write(sockfd, &fileIsDirectory, sizeof(fileIsDirectory));      /* else this path is for a file */
         /* open the user's file */
         fileDescriptor = open(filePath, O_RDONLY);
+        if (fileDescriptor < 0)
+            return FileTransferException;
         while (1)
         {
             /* read data into buffer */
@@ -64,7 +66,6 @@ int NetworkConnection(const char *filePath, int fileIsDirectory)
 
             /*
              *  will loop to write all data, we must make sure to read
-             *  and maintain our current position using p
              */
             while (bytes_read > 0)
             {

@@ -15,7 +15,7 @@ int main(void)
     server.connection.sin_family       = AF_INET;
     server.connection.sin_addr.s_addr  = htons(INADDR_ANY);
     server.connection.sin_port         = htons(PORT);
-    server.len                         = sizeof(server);
+    server.len                         = sizeof(server.connection);
 
     bind(server.socketdescriptor, (struct sockaddr *) &server.connection, server.len);
 
@@ -25,7 +25,7 @@ int main(void)
     while (1)
     {
         listen(server.socketdescriptor, 5);
-        client.len              = sizeof(client);
+        client.len              = sizeof(client.connection);
         client.socketdescriptor = accept(server.socketdescriptor, (struct sockaddr *) &client.connection, &client.len);
         printf("\nClient socket is number = %d.\n\n", client.socketdescriptor - 3) ; 
 
@@ -58,9 +58,9 @@ int main(void)
             rv = read(client.socketdescriptor, &isDirectory, sizeof(isDirectory));
 
             if (isDirectory == 1)
-                printf("\n\n%s is a directory!\n\n", file);
+                printf("\n%s is a directory!\n\n", file);
                 /* TODO: create directory. ? mkdir -p ? */
-            
+
             else                                     /* not a directory */
             {
                 printf("%s\n", file);
@@ -90,12 +90,12 @@ int main(void)
                     }
                     memset(fileArray, '\0', sizeof(fileArray));    /* clean the array */
                 }
-                fclose(fp1);
-                shutdown(client.socketdescriptor, 2);
-                /* write(client_sockfd, "Finished", sizeof("Finished"); */
-                close(client.socketdescriptor);
-                return 0;
             }
+            fclose(fp1);
+            shutdown(client.socketdescriptor, 2);
+            /* write(client_sockfd, "Finished", sizeof("Finished"); */
+            close(client.socketdescriptor);
+            return 0;
         }
     else if (pid < 0) 
         printf("could not transfer");

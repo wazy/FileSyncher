@@ -35,7 +35,7 @@ struct sockaddr_in address;
 struct stat sb;
 FILE *fp, *fp1;
 pthread_t currentFilesThread;
-int sockfd, len, result, HMS_Difference, HMS_Cached, HMS_Current, isDirectory;
+int sockfd, len, result, HMS_Difference, HMS_Cached, HMS_Current, isDirectory, status;
 int thread1, equalTimes, fileTransferSucceeded, count, fileDescriptor;
 char *fileName, *currentFileTime, *cachedFileTime, *token, *token2;
 char s[100], str[400], buffer[8*1024];

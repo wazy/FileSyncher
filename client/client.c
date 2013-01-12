@@ -74,7 +74,7 @@ int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwb
         free(currentFileTime);
     }
 
-    /* NYI: when no cached file exists */
+    /* when no cached file exists */
     if (uploadAll)
     {
         printf("uploading... %s\n", path);
@@ -161,14 +161,12 @@ int main(int argc, char *argv[])
     {
         printf("\nRemoving .names file and starting from scratch.\n");
         /* delete file here */
-        int status = remove(".names");
+        status = remove(".names");
         if (!status)
-        {
-            printf("Successfully removed... restarting...\n")
-        }
+            printf("Successfully removed... restarting...\n");
         else
         {
-            printf("ERROR: .names not successfully removed.\n")
+            printf("ERROR: .names not successfully removed.\n");
             return EXIT_FAILURE;
         }
     }
