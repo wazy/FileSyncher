@@ -77,7 +77,9 @@ int NetworkConnection(const char *filePath, int fileIsDirectory)
             }
         }
     }
-    shutdown(sockfd, 2);
+    //shutdown(sockfd, 1);
+    int er;
+   // read(sockfd, &er, sizeof(er));
     close(sockfd);
     return FileTransferSuccess;
 }

@@ -35,9 +35,9 @@ int main(void)
         {
             /* taking filename here */  
             rc = read(client.socketdescriptor, &buffer_size, sizeof(buffer_size)); /* read filename size */
-            if (rc <= 0) /* filename didn't come through */ 
+            if (rc <= 0) /* filename size didn't come through */ 
             {
-                printf("The filename was not correctly received.\n");
+                printf("The filename size was not correctly received.\n");
                 exit(EXIT_FAILURE);
             }
             
@@ -92,8 +92,9 @@ int main(void)
                 }
             }
             fclose(fp1);
-            shutdown(client.socketdescriptor, 2);
-            /* write(client_sockfd, "Finished", sizeof("Finished"); */
+            //shutdown(client.socketdescriptor, 0);
+            int er = 1;
+            //write(client.socketdescriptor, &er, sizeof(er));
             close(client.socketdescriptor);
             return 0;
         }

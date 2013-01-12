@@ -18,7 +18,7 @@
 #include <pthread.h>
 #include <limits.h>
 
-#define PORT 7737
+#define PORT 7739
 #define ADDRESS "127.0.0.1" 
 
 typedef int bool;

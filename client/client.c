@@ -65,11 +65,11 @@ int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwb
             free(currentFileTime);
         }
     }
-
     /* print the filename and last modified date to .names */
     if (updateFile && fp != NULL)
     {
         currentFileTime = GetLastModifiedTime(path);
+        fflush(fp);
         fprintf(fp, "%s\t%s\t%d\tDirectory Level=%d\tFlags=%d\n", path, currentFileTime, ptr->st_mode &S_IFDIR, ftwbuf->level, flag);
         free(currentFileTime);
     }
