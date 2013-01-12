@@ -22,11 +22,11 @@ typedef struct
     struct sockaddr_in connection;
 } serverSocket;
 
-size_t buffer_size, isDirectory;
+size_t buffer_size;
 FILE *fp1;
 pid_t pid;
 char fileArray[8*1024];
-int server_sockfd, client_sockfd, rc, rv, x;
+int server_sockfd, client_sockfd, isDirectory, rc, rv, x;
 /*unsigned client_len;
 struct sockaddr_in server_address; 
 struct sockaddr_in client_address; */

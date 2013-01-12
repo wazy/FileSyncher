@@ -47,7 +47,7 @@ int NetworkConnection(const char *filePath, int fileIsDirectory)
         fileIsDirectory = 1;                                   /* write 1 to server for directory */
         write(sockfd, &fileIsDirectory, sizeof(fileIsDirectory));  
     }
-    else if (!fileIsDirectory)
+    else
     {
         write(sockfd, &fileIsDirectory, sizeof(fileIsDirectory));      /* else this path is for a file */
         /* open the user's file */
