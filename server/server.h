@@ -12,7 +12,7 @@
 #include <string.h>
 #include <errno.h>
 
-#define PORT 7739
+#define PORT 7741
 
 
 typedef struct
@@ -20,7 +20,8 @@ typedef struct
     int socketdescriptor;
     unsigned len;
     struct sockaddr_in connection;
-} serverSocket;
+}
+ServerSocket;
 
 size_t buffer_size;
 FILE *fp1;

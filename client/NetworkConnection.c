@@ -1,7 +1,7 @@
 /*
  *  Establish and transfer the file
- *  Version 0.04
- *  ~1/10/13~
+ *  Version 0.05
+ *  ~1/13/13~
  *
 */
 
@@ -38,35 +38,54 @@ int NetworkConnection(const char *filePath, int fileIsDirectory)
     }
 
     fileNameLength = strlen(filePath);
-    write(sockfd, &fileNameLength, sizeof(fileNameLength));    /* to send file name size */
-    write(sockfd, filePath, fileNameLength);                   /* to send file name itself */
+    write(sockfd, &fileNameLength, sizeof(fileNameLength));             /* to send file name size */
+    write(sockfd, filePath, fileNameLength);                            /* to send file name itself */
 
     /* necessary check to prevent unexpected behavior */
     if (fileIsDirectory > 0)
     {
-        fileIsDirectory = 1;                                   /* write 1 to server for directory */
+        fileIsDirectory = 1;                                            /* write 1 to server for directory */
         write(sockfd, &fileIsDirectory, sizeof(fileIsDirectory));  
     }
     else
     {
-        write(sockfd, &fileIsDirectory, sizeof(fileIsDirectory));      /* else this path is for a file */
+        write(sockfd, &fileIsDirectory, sizeof(fileIsDirectory));       /* else this path is for a file */
         /* open the user's file */
-        fileDescriptor = open(filePath, O_RDONLY);
-        if (fileDescriptor < 0)
+        fp2 = fopen(filePath, "r");
+        if (fp2 == NULL)
             return FileTransferException;
+
+        strcat((char *)filePath, ".temp");                              /* recreate file temporarily */
+
+        tempFile = fopen(filePath, "w+");
+        if (tempFile == NULL)
+            return FileTransferException;
+        
+        /* copy the original file into the new temp file */
+        while((readWriteCount = fread(buffer, 1, sizeof(buffer), fp2)) > 0)
+        {
+            if (fwrite(buffer, 1, readWriteCount, tempFile) != readWriteCount)
+            {
+                printf("Error in transferring file!\n");
+                return FileTransferException;
+            }
+        }
+        fclose(fp2);
+        rewind(tempFile);
         while (1)
         {
             /* read data into buffer */
-            int bytes_read = read(fileDescriptor, buffer, sizeof(buffer));
-            if (bytes_read == 0) /* nothing left to read */
-                break;
+            int bytes_read = fread(buffer, 1, sizeof(buffer), tempFile);
 
+            if (bytes_read == 0) /* nothing left to read */
+            {
+                printf("%s\n", buffer);
+                break;
+            }
             if (bytes_read < 0)
                 return FileTransferException;
-
-            /*
-             *  will loop to write all data, we must make sure to read
-             */
+ 
+            /* will loop to write all data just read in */
             while (bytes_read > 0)
             {
                 int bytes_written = write(sockfd, buffer, bytes_read);
@@ -75,11 +94,11 @@ int NetworkConnection(const char *filePath, int fileIsDirectory)
 
                 bytes_read -= bytes_written;
             }
-        }
+            memset(buffer, '\0', sizeof(buffer)); 
+       }
+       fclose(tempFile);
+       remove(filePath);
     }
-    //shutdown(sockfd, 1);
-    int er;
-   // read(sockfd, &er, sizeof(er));
     close(sockfd);
     return FileTransferSuccess;
 }

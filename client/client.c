@@ -1,6 +1,6 @@
 /* 
- * Client Version 0.08
- * ~1/10/13~
+ * Client Version 0.09
+ * ~1/13/13~
  *
 */
 
@@ -150,14 +150,14 @@ static void *CurrentFilesThread()
 int main(int argc, char *argv[])
 {
     /* -help parameter from argv[1] */
-    if (argc > 1 && !strncmp(argv[1], "--help", 100))
+    if (argc > 1 && !strncmp(argv[1], "--help", sizeof(argv[1])))
     {
         printf("\nThis program will sync your local FileSyncher directory ");
         printf("with the remote server.\n");
         printf("Usage is %s --parameters.\n\n", argv[0]);
         return EXIT_SUCCESS;
     }
-    if (argc > 1 && !strncmp(argv[1], "--clean", 100))
+    if (argc > 1 && !strncmp(argv[1], "--clean", sizeof(argv[1])))
     {
         printf("\nRemoving .names file and starting from scratch.\n");
         /* delete file here */
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
 
     /* let the threads run.. till end */
     pthread_join(currentFilesThread, NULL);
-    
+
     printf("\n-------Sync succeeded!-------\n\n");
     exit(EXIT_SUCCESS);
 }

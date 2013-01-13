@@ -1,6 +1,6 @@
 /* 
- * Server Version 0.07
- * ~1/10/13~
+ * Server Version 0.08
+ * ~1/13/13~
  *
 */
 
@@ -8,8 +8,8 @@
 
 int main(void)
 {
-    serverSocket server;
-    serverSocket client;
+    ServerSocket server;
+    ServerSocket client;
     /* removing old and creating socket for server on defined port */
     server.socketdescriptor            = socket(AF_INET, SOCK_STREAM, 0);
     server.connection.sin_family       = AF_INET;
@@ -78,12 +78,12 @@ int main(void)
                     /* recieve from client on client_sockfd */
                     rc = recv(client.socketdescriptor, fileArray, sizeof(fileArray), 0);
                     /* if nothing left to read end loop */
-                    if (rc <= 0) 
+                    if (rc <= 0)
                         break;
 
-                    printf("%s", fileArray);
+                    /* printf("%s", fileArray); */
                     x = fwrite(fileArray, rc, 1, fp1);         /* write rc amount of bits */
-                    if (x < 0) 
+                    if (x < 0)
                     {
                         printf("\nfile write error in transfer\n");
                         return EXIT_FAILURE;
@@ -92,9 +92,6 @@ int main(void)
                 }
             }
             fclose(fp1);
-            //shutdown(client.socketdescriptor, 0);
-            int er = 1;
-            //write(client.socketdescriptor, &er, sizeof(er));
             close(client.socketdescriptor);
             return 0;
         }
