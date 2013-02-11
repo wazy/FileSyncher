@@ -5,6 +5,20 @@
 */
 
 #include "server.h"
+#include <time.h>
+#include <stdlib.h>
+
+/* djb2 algorithm */
+unsigned long HashGenerator(char *username)
+{
+    unsigned long hash = 5381;
+    int c;
+
+    while ((c = (*username++)))
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+    return hash; 
+}
 
 int main(void)
 {
@@ -33,7 +47,7 @@ int main(void)
         /* implemented calling a child process to take care of file transfer */
         if (pid == 0)
         {
-            /* taking filename here */  
+            /* taking username here -- todo fix this up */  
             rc = read(client.socketdescriptor, &buffer_size, sizeof(buffer_size)); /* read filename size */
             if (rc <= 0) /* filename size didn't come through */ 
             {
@@ -48,13 +62,24 @@ int main(void)
                 exit(EXIT_FAILURE);
             }
 
-            rv = read(client.socketdescriptor, file, buffer_size);
+            rv = read(client.socketdescriptor, user, buffer_size);
             if (rv <= 0) /* filename didn't come through */ 
             {
                 printf("The filename was not correctly received.\n");
                 exit(EXIT_FAILURE);
             }
-
+			
+			/* GetPass(user) -- get user password here NYI */
+			
+			srand(time(NULL));
+			int r = rand();
+			
+			test1 = HashGenerator(r); /* "username's" password */
+			
+			/* send hashed value */
+			int test = 1;
+			write(client.socketdescriptor, &test, 1);  
+		
             rv = read(client.socketdescriptor, &isDirectory, sizeof(isDirectory));
 
             if (isDirectory == 1)

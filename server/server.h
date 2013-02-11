@@ -12,7 +12,7 @@
 #include <string.h>
 #include <errno.h>
 
-#define PORT 7741
+#define PORT 7743
 
 
 typedef struct
@@ -31,6 +31,7 @@ int server_sockfd, client_sockfd, isDirectory, rc, rv, x;
 /*unsigned client_len;
 struct sockaddr_in server_address; 
 struct sockaddr_in client_address; */
-char *file;
+char *file, *user;
+unsigned long test1;
 
 #endif

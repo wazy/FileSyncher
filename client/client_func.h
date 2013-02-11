@@ -18,7 +18,7 @@
 #include <pthread.h>
 #include <limits.h>
 
-#define PORT 7741
+#define PORT 7743
 #define ADDRESS "127.0.0.1" 
 
 typedef int bool;
@@ -28,7 +28,8 @@ typedef int bool;
 /* Function declarations */
 bool TimeComparsion(char *currentFileTimeStamp, char *cachedFileTimeStamp);
 char *GetLastModifiedTime(const char *currentFileStamp);
-int NetworkConnection(const char *filePath, int isDirectory);
+int NetworkConnection();
+int Authenticate(char *user);
 
 /* Variables */
 struct sockaddr_in address;
@@ -41,6 +42,12 @@ char *fileName, *currentFileTime, *cachedFileTime, *token, *token2;
 char s[100], str[400], buffer[8*1024];
 size_t fileNameLength;
 unsigned readWriteCount;
+
+enum FileTransfer
+{
+    FileTransferException,
+    FileTransferSuccess
+};
 
 
 #endif

@@ -115,7 +115,9 @@ static void *CurrentFilesThread()
         uploadAll = true;
         updateFile = true;
         fp = fopen (".names", "w+");
-    
+		
+		Authenticate("user");
+		
         /* this will find all files in the FS directory */
         if (nftw(homeDir, DirList, 20, 0) != 0)
         {
@@ -184,5 +186,5 @@ int main(int argc, char *argv[])
     pthread_join(currentFilesThread, NULL);
 
     printf("\n-------Sync succeeded!-------\n\n");
-    exit(EXIT_SUCCESS);
+    return 0;
 }

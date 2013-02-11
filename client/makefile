@@ -1,6 +1,6 @@
 #make client binary
-client: GetLastModifiedTime.o TimeComparison.o client.o NetworkConnection.o
-	gcc -o ./bin/client GetLastModifiedTime.o TimeComparison.o client.o NetworkConnection.o -lpthread
+client: NetworkAuthentication.o GetLastModifiedTime.o TimeComparison.o client.o NetworkConnection.o
+	gcc -o ./bin/client NetworkAuthentication.o GetLastModifiedTime.o TimeComparison.o client.o NetworkConnection.o -lpthread
 
 #client object
 client.o: client.c client_func.h
@@ -17,6 +17,11 @@ GetLastModifiedTime.o: GetLastModifiedTime.c client_func.h
 #NetworkConnection object
 NetworkConnection.o: NetworkConnection.c client_func.h
 	gcc -Wshadow -pedantic -Wall -Wextra -g -c NetworkConnection.c
+
+#NetworkAuthentication object
+NetworkAuthentication.o: NetworkAuthentication.c client_func.h
+	gcc -Wshadow -pedantic -Wall -Wextra -g -c NetworkAuthentication.c
+
 
 #what to do when make clean
 clean:
