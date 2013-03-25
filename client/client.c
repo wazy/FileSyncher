@@ -20,7 +20,7 @@ char tmp[LINE_MAX] = {0};
 int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwbuf)
 {
     isDirectory = 0;
-    while (!uploadAll && !updateFile && (fgets(tmp, sizeof(tmp), fp) != NULL))
+    while (!uploadAll && updateFile && (fgets(tmp, sizeof(tmp), fp) != NULL))
     {
         if (!strstr(tmp, path))
         {
@@ -91,21 +91,22 @@ int DirList(const char *path, const struct stat *ptr, int flag, struct FTW *ftwb
 
 static void *CurrentFilesThread()
 {
+	char *files;
     /* gets home path and cats the source folder to it */
     char *homeDir = getenv("HOME");
-    homeDir = strcat(homeDir, "/FileSyncher/src/");
-
+    if (homeDir)
+        homeDir = strcat(homeDir, "/FileSyncher/");
     /* if we can't get home environment try this */
-    if (!homeDir) 
+    else
     {
         struct passwd* pwd = getpwuid(getuid());
         if (pwd)
            homeDir = pwd->pw_dir;
-           homeDir = strcat(homeDir, "/FileSyncher/src/");
+           homeDir = strcat(homeDir, "/FileSyncher/");
     }
-
+    files = strcat(homeDir, ".names");
     /* cached file is .names */
-    fp = fopen (".names", "rt");
+    fp = fopen (files, "rt");
 
     /* no cached file exists */
     if (fp == NULL)
@@ -114,10 +115,10 @@ static void *CurrentFilesThread()
         printf("Uploading all files and creating .names file.\n\n");
         uploadAll = true;
         updateFile = true;
-        fp = fopen (".names", "w+");
-		
-		Authenticate("user");
-		
+        fp = fopen (files, "w+");
+        
+        /*Authenticate("user");*/
+        
         /* this will find all files in the FS directory */
         if (nftw(homeDir, DirList, 20, 0) != 0)
         {
@@ -129,14 +130,15 @@ static void *CurrentFilesThread()
     /* we have a cached file */
     else
     {
+		fclose(fp);
+		fp = fopen(files, "w+");
+		/* check existing files */
         nftw(homeDir, DirList, 20, 0);
-        fclose(fp);
 
         /*
          * open names file for writing
          * toggle the switch to start updating files
          */
-        fp = fopen (".names", "w+");
         updateFile = true;
         /* this will find all files in the directory */
         if (nftw(homeDir, DirList, 20, 0) != 0)

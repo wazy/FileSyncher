@@ -35,12 +35,12 @@ int Authenticate(char *user)
 
 
     /* receive response from server if valid */
-	read(sockfd, &valid, 1);
-	
-	if (valid)
-		printf("valid became one\n");
-	
-	close(sockfd);
+    read(sockfd, &valid, 1);
+    
+    if (valid)
+        printf("valid became one\n");
+    
+    close(sockfd);
     
     x = HashGenerator(user);
     printf("%lu", x);

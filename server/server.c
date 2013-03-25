@@ -8,18 +8,6 @@
 #include <time.h>
 #include <stdlib.h>
 
-/* djb2 algorithm */
-unsigned long HashGenerator(char *username)
-{
-    unsigned long hash = 5381;
-    int c;
-
-    while ((c = (*username++)))
-        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-
-    return hash; 
-}
-
 int main(void)
 {
     ServerSocket server;
@@ -68,18 +56,11 @@ int main(void)
                 printf("The filename was not correctly received.\n");
                 exit(EXIT_FAILURE);
             }
-			
-			/* GetPass(user) -- get user password here NYI */
-			
-			srand(time(NULL));
-			int r = rand();
-			
-			test1 = HashGenerator(r); /* "username's" password */
-			
-			/* send hashed value */
-			int test = 1;
-			write(client.socketdescriptor, &test, 1);  
-		
+            
+            /* send hashed value */
+            int test = 1;
+            write(client.socketdescriptor, &test, 1);  
+        
             rv = read(client.socketdescriptor, &isDirectory, sizeof(isDirectory));
 
             if (isDirectory == 1)
